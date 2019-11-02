@@ -3,10 +3,10 @@ import { View, Text } from 'react-native';
 
 // import { Container } from './styles';
 
-export default function App() {
+export default function Cart() {
   return (
     <View>
-      <Text>Main</Text>
+      <Text>Cart</Text>
     </View>
   );
 }
