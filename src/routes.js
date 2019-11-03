@@ -3,6 +3,7 @@ import React from 'react';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
+import color from './styles/colors';
 import Header from './components/Header';
 
 import Home from './pages/Home';
@@ -19,6 +20,9 @@ const Routes = createAppContainer(
         headerTitle: () => <Header {...navigation} />,
         headerLeft: null,
       }),
+      cardStyle: {
+        backgroundColor: color.dark_secondary,
+      },
     }
   )
 );
