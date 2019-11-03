@@ -1,12 +1,21 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { Component } from 'react';
+import { View, Text, Button } from 'react-native';
 
 // import { Container } from './styles';
 
-export default function Cart() {
-  return (
-    <View>
-      <Text>Cart</Text>
-    </View>
-  );
+export default class Cart extends Component {
+  handleHome = () => {
+    const { navigation } = this.props;
+
+    navigation.navigate('Home');
+  };
+
+  render() {
+    return (
+      <View>
+        <Text>Cart</Text>
+        <Button title="Home" onPress={this.handleHome} />
+      </View>
+    );
+  }
 }
