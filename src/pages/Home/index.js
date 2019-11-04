@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { FlatList } from 'react-native';
+import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { formatPrice } from '../../util/format';
 import api from '../../services/api';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import {
   Container,
@@ -16,7 +21,7 @@ import {
   AddButtonText,
 } from './styles';
 
-export default class Home extends Component {
+class Home extends Component {
   state = {
     products: [],
   };
@@ -34,6 +39,12 @@ export default class Home extends Component {
     });
   }
 
+  handleAddProduct = product => {
+    const { addToCart } = this.props;
+
+    addToCart(product);
+  };
+
   render() {
     const { products } = this.state;
 
@@ -49,10 +60,10 @@ export default class Home extends Component {
               <ProductTitle>{item.title}</ProductTitle>
               <ProductPrice>{item.priceFormatted}</ProductPrice>
 
-              <AddButton>
+              <AddButton onPress={() => this.handleAddProduct(item)}>
                 <ProductAmount>
                   <Icon name="add-shopping-cart" color="#fff" size={20} />
-                  <ProductAmountText>3</ProductAmountText>
+                  <ProductAmountText>0</ProductAmountText>
                 </ProductAmount>
                 <AddButtonText>ADICIONAR</AddButtonText>
               </AddButton>
@@ -63,3 +74,15 @@ export default class Home extends Component {
     );
   }
 }
+
+Home.propTypes = {
+  addToCart: PropTypes.func.isRequired,
+};
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(Home);

@@ -1,6 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import color from '../../styles/colors';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import {
   Container,
@@ -22,25 +27,18 @@ import {
   OrderText,
 } from './styles';
 
-export default class Cart extends Component {
-  componentDidMount() {}
-
-  render() {
-    return (
-      <Container>
-        <Product>
+function Cart({ cart, removeFromCart }) {
+  return (
+    <Container>
+      {cart.map(product => (
+        <Product key={product.id}>
           <ProductInfo>
-            <ProductImage
-              source={{
-                uri:
-                  'https://static.netshoes.com.br/produtos/tenis-nike-shox-nz-masculino/12/D12-9660-112/D12-9660-112_detalhe2.jpg?ims=326x',
-              }}
-            />
+            <ProductImage source={{ uri: product.image }} alt={product.title} />
             <ProductDetails>
-              <ProductTitle>Tênis de Caminhada Leve Confortavel</ProductTitle>
-              <ProductPrice>R$179,90</ProductPrice>
+              <ProductTitle>{product.title}</ProductTitle>
+              <ProductPrice>{product.priceFormatted}</ProductPrice>
             </ProductDetails>
-            <ProductDelete>
+            <ProductDelete onPress={() => removeFromCart(product.id)}>
               <Icon name="delete-forever" size={24} color={color.primary} />
             </ProductDelete>
           </ProductInfo>
@@ -54,7 +52,7 @@ export default class Cart extends Component {
               />
             </ProductControlButton>
 
-            <ProductAmount />
+            <ProductAmount value={String(product.amount)} />
 
             <ProductControlButton>
               <Icon name="add-circle-outline" size={20} color={color.primary} />
@@ -63,15 +61,32 @@ export default class Cart extends Component {
             <ProductSubtotal>R$539,70</ProductSubtotal>
           </ProductControls>
         </Product>
+      ))}
 
-        <TotalContainer>
-          <TotalText>TOTAL</TotalText>
-          <TotalAmount>R$1690,10</TotalAmount>
-          <Order>
-            <OrderText>FINALIZAR PEDIDO</OrderText>
-          </Order>
-        </TotalContainer>
-      </Container>
-    );
-  }
+      <TotalContainer>
+        <TotalText>TOTAL</TotalText>
+        <TotalAmount>R$1690,10</TotalAmount>
+        <Order>
+          <OrderText>FINALIZAR PEDIDO</OrderText>
+        </Order>
+      </TotalContainer>
+    </Container>
+  );
 }
+
+Cart.propTypes = {
+  cart: PropTypes.arrayOf(PropTypes.object).isRequired,
+  removeFromCart: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = state => ({
+  cart: state.cart,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Cart);
