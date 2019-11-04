@@ -27,7 +27,15 @@ import {
   OrderText,
 } from './styles';
 
-function Cart({ cart, removeFromCart }) {
+function Cart({ cart, removeFromCart, updateAmount }) {
+  function increment(product) {
+    updateAmount(product.id, product.amount + 1);
+  }
+
+  function decrement(product) {
+    updateAmount(product.id, product.amount - 1);
+  }
+
   return (
     <Container>
       {cart.map(product => (
@@ -44,7 +52,7 @@ function Cart({ cart, removeFromCart }) {
           </ProductInfo>
 
           <ProductControls>
-            <ProductControlButton>
+            <ProductControlButton onPress={() => decrement(product)}>
               <Icon
                 name="remove-circle-outline"
                 size={20}
@@ -54,7 +62,7 @@ function Cart({ cart, removeFromCart }) {
 
             <ProductAmount value={String(product.amount)} />
 
-            <ProductControlButton>
+            <ProductControlButton onPress={() => increment(product)}>
               <Icon name="add-circle-outline" size={20} color={color.primary} />
             </ProductControlButton>
 
@@ -77,6 +85,7 @@ function Cart({ cart, removeFromCart }) {
 Cart.propTypes = {
   cart: PropTypes.arrayOf(PropTypes.object).isRequired,
   removeFromCart: PropTypes.func.isRequired,
+  updateAmount: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
