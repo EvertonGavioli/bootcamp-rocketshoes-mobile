@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 
 import './config/ReactotronConfig';
 
+import NavigationService from './services/NavigationService';
+
 import color from './styles/colors';
 import Routes from './routes';
 
@@ -16,7 +18,11 @@ export default function App() {
         barStyle="light-content"
         backgroundColor={color.dark_primary}
       />
-      <Routes />
+      <Routes
+        ref={navigatorRef => {
+          NavigationService.setTopLevelNavigator(navigatorRef);
+        }}
+      />
     </Provider>
   );
 }

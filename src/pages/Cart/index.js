@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import color from '../../styles/colors';
 
+import { formatPrice } from '../../util/format';
+
 import * as CartActions from '../../store/modules/cart/actions';
 
 import {
@@ -25,59 +27,76 @@ import {
   TotalAmount,
   Order,
   OrderText,
+  EmptyContainer,
+  EmptyText,
 } from './styles';
 
-function Cart({ cart, removeFromCart, updateAmount }) {
+function Cart({ cart, total, removeFromCart, updateAmountRequest }) {
   function increment(product) {
-    updateAmount(product.id, product.amount + 1);
+    updateAmountRequest(product.id, product.amount + 1);
   }
 
   function decrement(product) {
-    updateAmount(product.id, product.amount - 1);
+    updateAmountRequest(product.id, product.amount - 1);
   }
 
   return (
     <Container>
-      {cart.map(product => (
-        <Product key={product.id}>
-          <ProductInfo>
-            <ProductImage source={{ uri: product.image }} alt={product.title} />
-            <ProductDetails>
-              <ProductTitle>{product.title}</ProductTitle>
-              <ProductPrice>{product.priceFormatted}</ProductPrice>
-            </ProductDetails>
-            <ProductDelete onPress={() => removeFromCart(product.id)}>
-              <Icon name="delete-forever" size={24} color={color.primary} />
-            </ProductDelete>
-          </ProductInfo>
+      {cart.length ? (
+        <>
+          {cart.map(product => (
+            <Product key={product.id}>
+              <ProductInfo>
+                <ProductImage
+                  source={{ uri: product.image }}
+                  alt={product.title}
+                />
+                <ProductDetails>
+                  <ProductTitle>{product.title}</ProductTitle>
+                  <ProductPrice>{product.priceFormatted}</ProductPrice>
+                </ProductDetails>
+                <ProductDelete onPress={() => removeFromCart(product.id)}>
+                  <Icon name="delete-forever" size={24} color={color.primary} />
+                </ProductDelete>
+              </ProductInfo>
 
-          <ProductControls>
-            <ProductControlButton onPress={() => decrement(product)}>
-              <Icon
-                name="remove-circle-outline"
-                size={20}
-                color={color.primary}
-              />
-            </ProductControlButton>
+              <ProductControls>
+                <ProductControlButton onPress={() => decrement(product)}>
+                  <Icon
+                    name="remove-circle-outline"
+                    size={20}
+                    color={color.primary}
+                  />
+                </ProductControlButton>
 
-            <ProductAmount value={String(product.amount)} />
+                <ProductAmount value={String(product.amount)} />
 
-            <ProductControlButton onPress={() => increment(product)}>
-              <Icon name="add-circle-outline" size={20} color={color.primary} />
-            </ProductControlButton>
+                <ProductControlButton onPress={() => increment(product)}>
+                  <Icon
+                    name="add-circle-outline"
+                    size={20}
+                    color={color.primary}
+                  />
+                </ProductControlButton>
 
-            <ProductSubtotal>R$539,70</ProductSubtotal>
-          </ProductControls>
-        </Product>
-      ))}
-
-      <TotalContainer>
-        <TotalText>TOTAL</TotalText>
-        <TotalAmount>R$1690,10</TotalAmount>
-        <Order>
-          <OrderText>FINALIZAR PEDIDO</OrderText>
-        </Order>
-      </TotalContainer>
+                <ProductSubtotal>{product.subtotal}</ProductSubtotal>
+              </ProductControls>
+            </Product>
+          ))}
+          <TotalContainer>
+            <TotalText>TOTAL</TotalText>
+            <TotalAmount>{total}</TotalAmount>
+            <Order>
+              <OrderText>FINALIZAR PEDIDO</OrderText>
+            </Order>
+          </TotalContainer>
+        </>
+      ) : (
+        <EmptyContainer>
+          <Icon name="remove-shopping-cart" size={64} color="#eee" />
+          <EmptyText>Seu carrinho está vazio.</EmptyText>
+        </EmptyContainer>
+      )}
     </Container>
   );
 }
@@ -85,11 +104,20 @@ function Cart({ cart, removeFromCart, updateAmount }) {
 Cart.propTypes = {
   cart: PropTypes.arrayOf(PropTypes.object).isRequired,
   removeFromCart: PropTypes.func.isRequired,
-  updateAmount: PropTypes.func.isRequired,
+  updateAmountRequest: PropTypes.func.isRequired,
+  total: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
-  cart: state.cart,
+  cart: state.cart.map(product => ({
+    ...product,
+    subtotal: formatPrice(product.price * product.amount),
+  })),
+  total: formatPrice(
+    state.cart.reduce((total, product) => {
+      return total + product.price * product.amount;
+    }, 0)
+  ),
 });
 
 const mapDispatchToProps = dispatch =>
